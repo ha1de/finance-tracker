@@ -1,0 +1,45 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // As initialized
+  url      = env("DATABASE_URL") // Loads from .env file
+}
+
+// --- User Model ---
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // Store hashed password
+  name      String?  // Optional user name
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[] // Relation to transactions
+
+  @@map("users") // Optional: Specify the table name in the database
+}
+
+// --- Transaction Model ---
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  description String
+  amount      Float           // Use Float for monetary values (or Decimal if db supports)
+  type        TransactionType
+  date        DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  userId Int  // Foreign key relation to User
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade) // onDelete: Cascade means delete transactions if user is deleted
+
+  @@map("transactions") // Optional: Specify the table name
+}
