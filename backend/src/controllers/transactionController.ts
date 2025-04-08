@@ -1,40 +1,34 @@
-// backend/src/controllers/transactionController.ts
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import prisma from '../services/prisma';
-// --- FIX: Import Enum directly (should work after generate) ---
 import { TransactionType } from '@prisma/client';
-// --- END FIX ---
 
-// --- Create Transaction ---
 export const createTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
      res.status(400).json({ errors: errors.array() });
-     return; // Explicit return
+     return;
   }
 
   if (!req.user) {
        res.status(401).json({ message: 'Not authorized' });
-       return; // Explicit return
+       return;
   }
 
   const { description, amount, type, date } = req.body;
   const userId = req.user.id;
 
   try {
-    // --- FIX: Use direct enum ---
     if (!Object.values(TransactionType).includes(type)) {
         res.status(400).json({ message: 'Invalid transaction type' });
-        return; // Explicit return
+        return;
     }
-    // --- END FIX ---
 
     const transaction = await prisma.transaction.create({
       data: {
         description,
         amount: parseFloat(amount),
-        type: type, // Assign directly now
+        type,
         date: date ? new Date(date) : new Date(),
         userId,
       },
@@ -45,11 +39,10 @@ export const createTransaction = async (req: Request, res: Response, next: NextF
   }
 };
 
-// --- Get Transactions for User ---
 export const getTransactions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   if (!req.user) {
      res.status(401).json({ message: 'Not authorized' });
-     return; // Explicit return
+     return;
   }
   const userId = req.user.id;
 
@@ -64,18 +57,17 @@ export const getTransactions = async (req: Request, res: Response, next: NextFun
   }
 };
 
-// --- Get Single Transaction ---
 export const getTransactionById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
         res.status(401).json({ message: 'Not authorized' });
-        return; // Explicit return
+        return;
     }
     const userId = req.user.id;
     const transactionId = parseInt(req.params.id, 10);
 
     if (isNaN(transactionId)) {
          res.status(400).json({ message: 'Invalid transaction ID' });
-         return; // Explicit return
+         return;
     }
 
     try {
@@ -85,7 +77,7 @@ export const getTransactionById = async (req: Request, res: Response, next: Next
 
         if (!transaction || transaction.userId !== userId) {
             res.status(404).json({ message: 'Transaction not found' });
-            return; // Explicit return
+            return;
         }
 
         res.json(transaction);
@@ -94,18 +86,16 @@ export const getTransactionById = async (req: Request, res: Response, next: Next
     }
 };
 
-
-// --- Update Transaction ---
 export const updateTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
      res.status(400).json({ errors: errors.array() });
-     return; // Explicit return
+     return;
   }
 
   if (!req.user) {
      res.status(401).json({ message: 'Not authorized' });
-     return; // Explicit return
+     return;
   }
 
   const userId = req.user.id;
@@ -113,7 +103,7 @@ export const updateTransaction = async (req: Request, res: Response, next: NextF
 
   if (isNaN(transactionId)) {
       res.status(400).json({ message: 'Invalid transaction ID' });
-      return; // Explicit return
+      return;
   }
 
   const { description, amount, type, date } = req.body;
@@ -125,22 +115,20 @@ export const updateTransaction = async (req: Request, res: Response, next: NextF
 
     if (!existingTransaction || existingTransaction.userId !== userId) {
         res.status(404).json({ message: 'Transaction not found or not authorized to update' });
-        return; // Explicit return
+        return;
     }
 
-     // --- FIX: Use direct enum ---
     if (type && !Object.values(TransactionType).includes(type)) {
         res.status(400).json({ message: 'Invalid transaction type' });
-        return; // Explicit return
+        return;
     }
-    // --- END FIX ---
 
     const updatedTransaction = await prisma.transaction.update({
       where: { id: transactionId },
       data: {
         description: description ?? existingTransaction.description,
         amount: amount ? parseFloat(amount) : existingTransaction.amount,
-        type: type ?? existingTransaction.type, // Assign directly
+        type: type ?? existingTransaction.type,
         date: date ? new Date(date) : existingTransaction.date,
       },
     });
@@ -150,18 +138,17 @@ export const updateTransaction = async (req: Request, res: Response, next: NextF
   }
 };
 
-// --- Delete Transaction ---
 export const deleteTransaction = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   if (!req.user) {
      res.status(401).json({ message: 'Not authorized' });
-     return; // Explicit return
+     return;
   }
   const userId = req.user.id;
   const transactionId = parseInt(req.params.id, 10);
 
    if (isNaN(transactionId)) {
       res.status(400).json({ message: 'Invalid transaction ID' });
-      return; // Explicit return
+      return;
   }
 
   try {
@@ -171,7 +158,7 @@ export const deleteTransaction = async (req: Request, res: Response, next: NextF
 
     if (!transaction || transaction.userId !== userId) {
         res.status(404).json({ message: 'Transaction not found or not authorized to delete' });
-        return; // Explicit return
+        return;
     }
 
     await prisma.transaction.delete({

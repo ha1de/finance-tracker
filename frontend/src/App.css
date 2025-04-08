@@ -1,3 +1,17 @@
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f7f6;
+  color: #333;
+  line-height: 1.6;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -5,38 +19,208 @@
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
 .card {
   padding: 2em;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  text-align: left;
 }
+
+nav {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+nav a {
+  color: #007bff;
+  text-decoration: none;
+  margin-right: 1rem;
+  padding: 0.5rem;
+}
+nav a:hover {
+  color: #0056b3;
+  background-color: #e9ecef;
+  border-radius: 4px;
+}
+
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.25s, border-color 0.25s;
+}
+button:hover {
+  background-color: #0056b3;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+
+.auth-page {
+   max-width: 400px;
+   margin: 2rem auto;
+}
+
+.add-transaction-form {
+  padding: 2em;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.auth-page h2,
+.add-transaction-form h3 {
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+  text-align: center;
+}
+
+/* Form Fields */
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Transaction tble */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+th, td {
+  border: 1px solid #e0e0e0;
+  padding: 0.75rem;
+  text-align: left;
+}
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+tbody tr:nth-child(odd) {
+  background-color: #fdfdfd;
+}
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+.expense-amount {
+  color: #dc3545;
+  font-weight: 500;
+}
+.income-amount {
+  color: #28a745;
+  font-weight: 500;
+}
+
+
+.dashboard-page {
+  text-align: left;
+}
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Feedback Messages */
+.error-message,
+.success-message {
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  transition: opacity 0.3s ease-out;
+}
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+.success-message {
+  color: #28a745;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
 
 .read-the-docs {
   color: #888;
+}
+
+
+.dashboard-container {
+  display: flex;
+  gap: 3rem;
+  align-items: flex-start;
+}
+.add-transaction-section {
+  width: 450px;
+  flex-shrink: 0;
+}
+.transaction-history-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.transaction-list-scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+}
+.transaction-list-scrollable table {
+  width: 100%;
+  margin-top: 0;
+}
+.selected-row {
+  background-color: #e0f7ff !important;
+}
+
+/* Smooth button animation */
+.action-buttons-container {
+  min-height: 40px;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+.action-buttons-container.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.action-buttons-container > div {
+  align-items: center;
 }

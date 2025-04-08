@@ -1,26 +1,24 @@
-// backend/prisma/schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite" // As initialized
-  url      = env("DATABASE_URL") // Loads from .env file
+  provider = "sqlite" // Use SQLite as the database provider
+  url      = env("DATABASE_URL") // Database URL from the environment variables
 }
 
 // --- User Model ---
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int      @id @default(autoincrement())  // Primary key with auto-increment
+  email     String   @unique                       // Unique email for each user
   password  String   // Store hashed password
   name      String?  // Optional user name
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())               // Timestamp for user creation
+  updatedAt DateTime @updatedAt                    // Timestamp for last update
 
   transactions Transaction[] // Relation to transactions
 
-  @@map("users") // Optional: Specify the table name in the database
+  @@map("users") // Optional: Specify the table name as "users"
 }
 
 // --- Transaction Model ---
@@ -30,16 +28,16 @@ enum TransactionType {
 }
 
 model Transaction {
-  id          Int             @id @default(autoincrement())
-  description String
-  amount      Float           // Use Float for monetary values (or Decimal if db supports)
-  type        TransactionType
-  date        DateTime        @default(now())
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id          Int             @id @default(autoincrement())  // Primary key with auto-increment
+  description String          // Description of the transaction
+  amount      Float           // Monetary value (consider using Decimal if required)
+  type        TransactionType // Type: INCOME or EXPENSE
+  date        DateTime        @default(now())  // Timestamp for when the transaction occurred
+  createdAt   DateTime        @default(now())  // Timestamp for transaction creation
+  updatedAt   DateTime        @updatedAt       // Timestamp for last update
 
-  userId Int  // Foreign key relation to User
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade) // onDelete: Cascade means delete transactions if user is deleted
+  userId Int  // Foreign key to the User model
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade) // Cascade delete transactions if user is deleted
 
-  @@map("transactions") // Optional: Specify the table name
+  @@map("transactions") // Optional: Specify the table name as "transactions"
 }

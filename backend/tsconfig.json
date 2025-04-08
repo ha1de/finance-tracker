@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2016", // Or newer like ES2020, ES2022
-    "module": "CommonJS", // To match package.json type and Node compatibility
-    "outDir": "./dist", // Where compiled JS files will go
-    "rootDir": "./src", // Where source TS files are located
+    "target": "ES2016", 
+    "module": "CommonJS", 
+    "outDir": "./dist", 
+    "rootDir": "./src", 
     "strict": true,
-    "esModuleInterop": true, // Allows default imports from commonjs modules
+    "esModuleInterop": true, 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node", // Important for finding modules
-    "resolveJsonModule": true, // Allows importing JSON files
-    "sourceMap": true // Generates source maps for debugging
-    // "baseUrl": "./src", // Optional: Allows absolute paths from src/
-    // "paths": { ... } // Optional: Path aliases
+    "moduleResolution": "node", 
+    "resolveJsonModule": true, 
+    "sourceMap": true
   },
-  "include": ["src/**/*"], // Only compile files in the src directory
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"] // Exclude tests, node_modules
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

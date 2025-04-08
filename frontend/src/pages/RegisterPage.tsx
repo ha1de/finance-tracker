@@ -1,4 +1,3 @@
-// frontend/src/pages/RegisterPage.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { registerUser } from '../services/api';
@@ -22,18 +21,16 @@ const RegisterPage: React.FC = () => {
     try {
       const result = await registerUser({ name, email, password });
       setSuccess(`${result.message}. You can now log in.`);
-      // Optionally clear form or navigate after delay
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-        if (err instanceof AxiosError && err.response) {
-            // Use error message from backend if available
-            setError(err.response.data?.message || 'Registration failed. Please try again.');
-        } else if (err instanceof Error) {
-            setError(err.message);
-        } else {
-            setError('An unknown registration error occurred.');
-        }
-        console.error("Registration error:", err);
+      if (err instanceof AxiosError && err.response) {
+        setError(err.response.data?.message || 'Registration failed. Please try again.');
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown registration error occurred.');
+      }
+      console.error("Registration error:", err);
     } finally {
       setIsLoading(false);
     }

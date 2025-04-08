@@ -1,4 +1,3 @@
-// frontend/src/pages/LoginPage.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { loginUser } from '../services/api';
@@ -18,18 +17,16 @@ const LoginPage: React.FC = () => {
 
     try {
       await loginUser({ email, password });
-      // Login successful, token is stored by api service
-      navigate('/'); // Navigate to the dashboard/home page
+      navigate('/');
     } catch (err) {
-       if (err instanceof AxiosError && err.response) {
-            // Use error message from backend if available
-            setError(err.response.data?.message || 'Login failed. Please check credentials.');
-        } else if (err instanceof Error) {
-            setError(err.message);
-        } else {
-            setError('An unknown login error occurred.');
-        }
-        console.error("Login error:", err);
+      if (err instanceof AxiosError && err.response) {
+        setError(err.response.data?.message || 'Login failed. Please check credentials.');
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unknown login error occurred.');
+      }
+      console.error("Login error:", err);
     } finally {
       setIsLoading(false);
     }

@@ -1,12 +1,7 @@
-// backend/src/routes/validators/transactionValidators.ts
 import { body } from 'express-validator';
-// --- FIX: Import Enum directly ---
 import { TransactionType } from '@prisma/client';
-// --- END FIX ---
 
-// --- FIX: Use direct enum ---
 const validTypes = Object.values(TransactionType);
-// --- END FIX ---
 
 export const transactionValidation = [
   body('description')
