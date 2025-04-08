@@ -1,48 +1,45 @@
 // frontend/src/App.tsx
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import DashboardPage from './pages/DashboardPage';
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 import './App.css';
-import { getHealth } from './services/api'; // Import our API function
 
 function App() {
-  const [backendStatus, setBackendStatus] = useState<string>('Checking...');
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch health status when the component mounts
-  useEffect(() => {
-    getHealth()
-      .then(data => {
-        setBackendStatus(`Backend is ${data.status} (Timestamp: ${data.timestamp})`);
-        setError(null); // Clear previous errors
-      })
-      .catch(err => {
-        console.error(err);
-        // Attempt to get a more specific error message
-        let message = 'Failed to connect to backend.';
-        if (err.response) {
-            // Request made and server responded
-            message = `Backend error: ${err.response.status} - ${err.response.data?.message || err.message}`;
-        } else if (err.request) {
-            // Request was made but no response received
-            message = 'No response from backend. Is it running?';
-        } else {
-            // Something else happened
-            message = `Error: ${err.message}`;
-        }
-        setBackendStatus('Error');
-        setError(message);
-      });
-  }, []); // Empty dependency array means run only once on mount
+  // Simple check for initial auth state (can be improved with context/state management)
+  const isAuthenticated = !!localStorage.getItem('authToken');
 
   return (
     <>
-      <h1>Finance Tracker Frontend</h1>
-      <div className="card">
-        <h2>Backend Status</h2>
-        <p>{backendStatus}</p>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </div>
+      {/* Optional: Add a basic navigation header */}
+      <nav style={{ marginBottom: '20px', borderBottom: '1px solid #ccc', paddingBottom: '10px' }}>
+        <Link to="/" style={{ marginRight: '10px' }}>Dashboard</Link>
+        {!isAuthenticated && <Link to="/login" style={{ marginRight: '10px' }}>Login</Link>}
+        {!isAuthenticated && <Link to="/register">Register</Link>}
+        {/* Logout button is now on DashboardPage */}
+      </nav>
 
-      {/* We will add Routing and Pages/Components here later */}
+      {/* Define application routes */}
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}> {/* Wrap protected routes */}
+            <Route path="/" element={<DashboardPage />} />
+            {/* Add other protected routes here (e.g., /profile, /add-transaction) */}
+        </Route>
+
+        {/* Optional: Redirect root path based on auth state (alternative to protected route) */}
+        {/* <Route path="/" element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" />} /> */}
+
+        {/* Optional: Handle 404 Not Found */}
+        <Route path="*" element={<h2>Page Not Found</h2>} />
+      </Routes>
     </>
   );
 }

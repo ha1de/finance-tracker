@@ -1,6 +1,6 @@
 // frontend/src/services/api.ts
 import axios from 'axios';
-import { Transaction } from '../types'; // Import your types
+import { Transaction, User } from '../types'; // Import User type if not already
 
 // Create an Axios instance configured for our API
 const apiClient = axios.create({
@@ -12,52 +12,112 @@ const apiClient = axios.create({
 });
 
 // --- Add Auth Token Interceptor (Important for protected routes!) ---
-// This interceptor runs before each request
 apiClient.interceptors.request.use(
   (config) => {
-    // Get the token from wherever you store it (e.g., localStorage)
     const token = localStorage.getItem('authToken'); // Example key name
     if (token) {
-      // If token exists, add it to the Authorization header
       config.headers.Authorization = `Bearer ${token}`;
     }
-    return config; // Continue with the request configuration
+    return config;
   },
   (error) => {
-    // Handle request error
     return Promise.reject(error);
   }
 );
 
 
-// --- Define API functions ---
+// --- API functions ---
 
-// Example: Get backend health status
+// Health Check
 export const getHealth = async (): Promise<{ status: string; timestamp: string }> => {
   try {
     const response = await apiClient.get('/health');
     return response.data;
   } catch (error) {
     console.error("Error fetching health status:", error);
-    // Re-throw or handle error as appropriate for your app
     throw error;
   }
 };
 
-// Example: Get all transactions (needs authentication)
-export const getTransactions = async (): Promise<Transaction[]> => {
+// --- Authentication ---
+// Define types for request/response data explicitly
+interface AuthResponse {
+    message: string;
+    token: string;
+    user: User;
+}
+
+interface RegisterData {
+    email: string;
+    password: string;
+    name?: string;
+}
+
+interface LoginData {
+    email: string;
+    password: string;
+}
+
+export const registerUser = async (data: RegisterData): Promise<{ message: string, user: User }> => {
     try {
-        const response = await apiClient.get<Transaction[]>('/transactions'); // Expect an array of Transactions
+        // Note: Backend currently doesn't return token on register, adjust if needed
+        const response = await apiClient.post<{ message: string, user: User }>('/auth/register', data);
         return response.data;
     } catch (error) {
-        console.error("Error fetching transactions:", error);
-        // Handle potential 401 Unauthorized errors etc.
+        console.error("Error registering user:", error);
+        throw error; // Re-throw to be handled by the component
+    }
+};
+
+export const loginUser = async (data: LoginData): Promise<AuthResponse> => {
+    try {
+        const response = await apiClient.post<AuthResponse>('/auth/login', data);
+        // Store the token upon successful login
+        if (response.data.token) {
+            localStorage.setItem('authToken', response.data.token); // Store the token
+            console.log("Token stored in localStorage");
+        } else {
+             console.warn("No token received from login response");
+        }
+        return response.data;
+    } catch (error) {
+        console.error("Error logging in:", error);
+        // Remove any potentially stale token on login failure
+        localStorage.removeItem('authToken');
+        throw error; // Re-throw
+    }
+};
+
+export const getCurrentUser = async (): Promise<User> => {
+    try {
+        const response = await apiClient.get<User>('/auth/me');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching current user:", error);
+        // If error (e.g., 401), token might be invalid/expired
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+            console.log("Unauthorized fetching user, removing token.");
+            localStorage.removeItem('authToken');
+        }
         throw error;
     }
 };
 
-// Example: Add a new transaction (needs authentication)
-// Omit 'id', 'createdAt', 'updatedAt', 'userId' as they are set by backend/token
+// --- Transactions ---
+export const getTransactions = async (): Promise<Transaction[]> => {
+    try {
+        const response = await apiClient.get<Transaction[]>('/transactions');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
+         if (axios.isAxiosError(error) && error.response?.status === 401) {
+            console.log("Unauthorized fetching transactions, removing token.");
+            localStorage.removeItem('authToken');
+        }
+        throw error;
+    }
+};
+
 type NewTransactionData = Omit<Transaction, 'id' | 'createdAt' | 'updatedAt' | 'userId'>;
 
 export const addTransaction = async (transactionData: NewTransactionData): Promise<Transaction> => {
@@ -66,15 +126,22 @@ export const addTransaction = async (transactionData: NewTransactionData): Promi
         return response.data;
     } catch (error) {
         console.error("Error adding transaction:", error);
+         if (axios.isAxiosError(error) && error.response?.status === 401) {
+            console.log("Unauthorized adding transaction, removing token.");
+            localStorage.removeItem('authToken');
+        }
         throw error;
     }
 };
 
-// TODO: Add functions for:
-// - Register (/auth/register)
-// - Login (/auth/login) -> Store the received token (e.g., in localStorage)
-// - Get Current User (/auth/me)
-// - Update Transaction (/transactions/:id) PUT/PATCH
-// - Delete Transaction (/transactions/:id) DELETE
+// --- Logout Helper ---
+export const logout = (): void => {
+    localStorage.removeItem('authToken');
+    console.log("Token removed from localStorage");
+    // Optionally redirect or update app state here or in the component calling logout
+};
 
-export default apiClient; // Optional: Export the configured client if needed elsewhere
+
+// TODO: Add Update/Delete Transaction functions
+
+export default apiClient;
