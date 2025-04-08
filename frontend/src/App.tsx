@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// frontend/src/App.tsx
+import { useState, useEffect } from 'react';
+import './App.css';
+import { getHealth } from './services/api'; // Import our API function
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [backendStatus, setBackendStatus] = useState<string>('Checking...');
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch health status when the component mounts
+  useEffect(() => {
+    getHealth()
+      .then(data => {
+        setBackendStatus(`Backend is ${data.status} (Timestamp: ${data.timestamp})`);
+        setError(null); // Clear previous errors
+      })
+      .catch(err => {
+        console.error(err);
+        // Attempt to get a more specific error message
+        let message = 'Failed to connect to backend.';
+        if (err.response) {
+            // Request made and server responded
+            message = `Backend error: ${err.response.status} - ${err.response.data?.message || err.message}`;
+        } else if (err.request) {
+            // Request was made but no response received
+            message = 'No response from backend. Is it running?';
+        } else {
+            // Something else happened
+            message = `Error: ${err.message}`;
+        }
+        setBackendStatus('Error');
+        setError(message);
+      });
+  }, []); // Empty dependency array means run only once on mount
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+      <h1>Finance Tracker Frontend</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        <h2>Backend Status</h2>
+        <p>{backendStatus}</p>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+      {/* We will add Routing and Pages/Components here later */}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
